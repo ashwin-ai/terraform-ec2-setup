@@ -1,3 +1,4 @@
+
 data "aws_vpc" "default" {
   default = true
 }
@@ -8,9 +9,10 @@ data "aws_subnets" "default" {
     values = [data.aws_vpc.default.id]
   }
 }
+
 data "aws_ami" "latest_ubuntu" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
@@ -19,5 +21,6 @@ data "aws_ami" "latest_ubuntu" {
 }
 
 data "aws_key_pair" "existing" {
-  key_name = "new-terraform"
+  key_name = var.key_name
 }
+
