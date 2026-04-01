@@ -24,26 +24,22 @@ resource "aws_security_group" "ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name        = var.sg_name
-    Project     = var.project_name
-    Environment = var.environment
-  }
+  tags = merge(local.common_tags, {
+    Name = var.sg_name
+  })
 }
 
 resource "aws_instance" "web" {
   count         = var.instance_count
   ami           = data.aws_ami.latest_ubuntu.id
-  instance_type = var.instance_type
+  instance_type = local.selected_instance_type
   key_name      = data.aws_key_pair.existing.key_name
 
   subnet_id              = data.aws_subnets.default.ids[0]
   vpc_security_group_ids = [aws_security_group.ssh.id]
 
-  tags = {
-    Name        = "ansible-ec2-${count.index + 1}"
-    Project     = var.project_name
-    Environment = var.environment
-  }
+  tags = merge(local.common_tags, {
+    Name = "ansible-ec2-${count.index + 1}"
+  })
 }
 
