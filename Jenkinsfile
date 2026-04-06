@@ -12,21 +12,21 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform with Vault Secrets') {
             steps {
-                sh 'terraform init'
-            }
-        }
-
-        stage('Terraform Validate') {
-            steps {
-                sh 'terraform validate'
-            }
-        }
-
-        stage('Terraform Plan') {
-            steps {
-                sh 'terraform plan'
+                withVault([
+                    vaultSecrets: [[
+                        path: 'secret/aws',
+                        secretValues: [
+                            [envVar: 'AWS_ACCESS_KEY_ID', vaultKey: 'AWS_ACCESS_KEY_ID'],
+                            [envVar: 'AWS_SECRET_ACCESS_KEY', vaultKey: 'AWS_SECRET_ACCESS_KEY']
+                        ]
+                    ]]
+                ]) {
+                    sh 'terraform init'
+                    sh 'terraform validate'
+                    sh 'terraform plan'
+                }
             }
         }
     }
